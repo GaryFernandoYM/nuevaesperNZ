@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Vouchers WiFi - Nueva Esperanza</title>
+<style>
+  :root{
+    --ink:#182b3a;
+    --sky:#1b3a5c;
+    --sun:#d4a017;
+    --paper:#f7f4ee;
+    --line:#c9c2b2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Trebuchet MS', 'Segoe UI', sans-serif;
+    background:#e8e4da;
+    color:var(--ink);
+  }
+  .panel{
+    max-width:900px;
+    margin:0 auto;
+    padding:28px 24px 40px;
+  }
+  h1{
+    font-size:24px;
+    font-weight:800;
+    letter-spacing:.2px;
+    margin:0 0 4px;
+  }
+  .sub{
+    color:#5b5346;
+    font-size:14px;
+    margin:0 0 22px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin:14px 0 6px;
+    color:#3a3428;
+  }
+  textarea, select, input[type=text]{
+    width:100%;
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:13px;
+    padding:10px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+  }
+  textarea{height:150px; resize:vertical;}
+  select, input[type=text]{font-family:inherit;}
+  .row{display:flex; gap:16px;}
+  .row > div{flex:1;}
+  button{
+    margin-top:20px;
+    background:var(--sky);
+    color:#fff;
+    border:none;
+    padding:12px 22px;
+    font-size:14px;
+    font-weight:600;
+    border-radius:4px;
+    cursor:pointer;
+  }
+  button:hover{background:#122a42;}
+  .hint{font-size:12px; color:#7a7364; margin-top:4px;}
+  #controls .final{display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
+  #controls .total{margin-top:20px; font-size:13px; color:#5b5346;}
+
+  #sheet{
+    margin-top:32px;
+    background:#fff;
+    border:1px solid var(--line);
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    grid-auto-rows:24mm;
+  }
+  .ticket{
+    border:1px dashed var(--line);
+    padding:5px;
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:6px;
+    text-align:left;
+    min-height:0;
+    overflow:hidden;
+    page-break-inside:avoid;
+    break-inside:avoid;
+  }
+  .ticket .info{
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+  }
+  .ticket .brand{
+    font-size:7px;
+    font-weight:700;
+    letter-spacing:.3px;
+    color:var(--sun);
+    text-transform:uppercase;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
+  }
+  .ticket .dur{
+    font-size:9px;
+    font-weight:700;
+    color:var(--sky);
+    margin:1px 0 3px;
+  }
+  .ticket .qr{
+    width:46px;
+    height:46px;
+    padding:2px;
+    margin:0;
+    border:1px solid var(--line);
+    background:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    box-sizing:content-box;
+  }
+  .ticket .qr img{
+    display:block;
+    width:auto;
+    height:auto;
+    max-width:100%;
+    max-height:100%;
+  }
+  .ticket .codebox{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:3px;
+    width:100%;
+    overflow:hidden;
+  }
+  .ticket .field{
+    font-size:6px;
+    color:#8a8272;
+    text-transform:uppercase;
+    letter-spacing:.3px;
+  }
+  .ticket .val{
+    font-family:'SFMono-Regular', Consolas, monospace;
+    font-size:9px;
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:.4px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
+    word-break:break-all;
+  }
+  .ticket .price{
+    margin-top:3px;
+    font-size:9px;
+    font-weight:700;
+    color:var(--sky);
+  }
+  .empty{
+    padding:40px;
+    text-align:center;
+    color:#9a917f;
+    grid-column:1/-1;
+    font-size:13px;
+  }
+
+  @page{ size:A4; margin:0; }
+  @media print{
+    body{background:#fff;}
+    .panel{padding:0; max-width:none;}
+    .no-print{display:none !important;}
+    #sheet{margin-top:0; border:none;}
+    .grid{page-break-after:always; break-after:page;}
+    .grid:last-child{page-break-after:auto; break-after:auto;}
+    .ticket{border:1px dashed #999; page-break-inside:avoid; break-inside:avoid;}
+  }
+
+  #login{
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    background:linear-gradient(160deg,#182b3a,#1b3a5c);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  #login.hidden{display:none;}
+  body.locked .panel{display:none;}
+  .login-card{
+    background:var(--paper);
+    width:100%;
+    max-width:360px;
+    border-radius:8px;
+    padding:28px 24px;
+    box-shadow:0 20px 50px rgba(0,0,0,.45);
+  }
+  .login-card h2{
+    margin:0 0 4px;
+    font-size:20px;
+    color:var(--sky);
+  }
+  .login-card p{
+    margin:0 0 18px;
+    font-size:13px;
+    color:#6a6252;
+  }
+  .login-card input{
+    width:100%;
+    font-family:inherit;
+    font-size:14px;
+    padding:11px;
+    border:1px solid var(--line);
+    border-radius:4px;
+    background:#fff;
+    margin-bottom:12px;
+  }
+  .login-card button{
+    width:100%;
+    margin-top:4px;
+  }
+  .login-error{
+    color:#b3261e;
+    font-size:12px;
+    min-height:16px;
+    margin-bottom:6px;
+  }
+</style>
+</head>
+<body class="locked">
+  <div id="login">
+    <form class="login-card" onsubmit="return intentarLogin(event)">
+      <h2>Nueva Esperanza WiFi</h2>
+      <p>Acceso restringido. Ingresa tus credenciales para continuar.</p>
+      <input type="text" id="userLogin" placeholder="Usuario" autocomplete="username" autofocus>
+      <input type="password" id="passLogin" placeholder="Contraseña" autocomplete="current-password">
+      <div class="login-error" id="loginError"></div>
+      <button type="submit">Ingresar</button>
+    </form>
+  </div>
+
+  <div class="panel">
+    <div class="no-print" id="controls">
+      <h1>Vouchers — Nueva Esperanza WiFi</h1>
+      <p class="sub">Pega la lista que imprime el script de MikroTik y genera tickets listos para cortar e imprimir.</p>
+
+      <label>Pega aquí la lista de códigos, uno por línea</label>
+      <textarea id="raw" placeholder="Usuario: 483920 / Clave: 483920
+Usuario: usuario02 / Contraseña: clave02
+usuario03 / clave03"></textarea>
+      <p class="hint">Usa una línea por voucher: Usuario: X / Contraseña: Y, o simplemente X / Y.</p>
+
+      <div class="row">
+        <div>
+          <label>Duración del plan</label>
+          <select id="dur">
+            <option value="1 HORA">1 hora</option>
+            <option value="2 HORAS">2 horas</option>
+            <option value="4 HORAS">4 horas</option>
+            <option value="7 DÍAS">7 días</option>
+            <option value="15 DÍAS">15 días</option>
+            <option value="1 MES">1 mes</option>
+          </select>
+        </div>
+        <div>
+          <label>Precio (opcional)</label>
+          <input type="text" id="price" placeholder="S/ 3.00">
+        </div>
+      </div>
+
+      <div class="final">
+        <button onclick="generar()">Generar tickets</button>
+        <button onclick="window.print()" style="background:var(--sun); color:#2a2110;">Imprimir</button>
+        <span class="total" id="total"></span>
+      </div>
+    </div>
+
+    <div id="sheet">
+      <div class="grid">
+        <div class="empty">Aún no has generado tickets. Pega tus códigos arriba y presiona «Generar tickets».</div>
+      </div>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script>
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function hashCred(s){
+  var str = 'NEwifi::' + s;
+  var h = 0x811c9dc5;
+  for(var i = 0; i < str.length; i++){ h ^= str.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  var h2 = 0x9e3779b9;
+  for(var i = str.length - 1; i >= 0; i--){ h2 ^= str.charCodeAt(i); h2 = Math.imul(h2, 0x85ebca6b); }
+  return (h >>> 0).toString(16).padStart(8,'0') + (h2 >>> 0).toString(16).padStart(8,'0');
+}
+
+var CRED = { u: '86be019ab96e2950', p: '143c9c39ca6c8a11' };
+
+function intentarLogin(e){
+  e.preventDefault();
+  var u = document.getElementById('userLogin').value.trim();
+  var p = document.getElementById('passLogin').value;
+  var err = document.getElementById('loginError');
+  if(hashCred(u) === CRED.u && hashCred(p) === CRED.p){
+    document.body.classList.remove('locked');
+    document.getElementById('login').classList.add('hidden');
+  }else{
+    err.textContent = 'Usuario o contraseña incorrectos.';
+    document.getElementById('passLogin').value = '';
+  }
+  return false;
+}
+
+function makeQR(text, size){
+  const box = document.createElement('div');
+  box.classList.add('qr');
+  if(typeof qrcode === 'function'){
+    var qr = qrcode(0, 'M');
+    qr.addData(text);
+    qr.make();
+    box.innerHTML = qr.createImgTag(4, 1);
+  }else{
+    box.innerHTML = '<div style="width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;color:#999;font-size:9px;">QR sin conexión</div>';
+  }
+  return box;
+}
+
+function generar(){
+  const raw = document.getElementById('raw').value.trim();
+  const dur = document.getElementById('dur').value;
+  const price = document.getElementById('price').value.trim();
+  const sheet = document.getElementById('sheet');
+  const loginUrl = 'http://login.wifi/login';
+
+  if(!raw){
+    sheet.innerHTML = '<div class="grid"><div class="empty">Pega al menos un código antes de generar.</div></div>';
+    document.getElementById('total').textContent = '';
+    return;
+  }
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+
+  const PER_PAGE = 48;
+  let html = '';
+  for(let i = 0; i < lines.length; i += PER_PAGE){
+    html += '<div class="grid">';
+    lines.slice(i, i + PER_PAGE).forEach(line => {
+      let user = line;
+      let pass = 'No indicada';
+      const labeled = line.match(/(?:usuario|user)\s*:\s*(.+?)\s*(?:(?:\/|;|\||,)\s*)?(?:clave|contraseña|password|pass)\s*:\s*(.+)$/i);
+      const separated = line.match(/^(.+?)\s*(?:\/|;|\||,)\s*(.+)$/);
+      const m = labeled || separated;
+      if(m){
+        user = m[1].trim();
+        pass = m[2].trim();
+      }
+      const qrData = loginUrl;
+      html += `
+      <div class="ticket">
+        ${makeQR(qrData, 34).outerHTML}
+        <div class="info">
+          <div class="brand">Nueva Esperanza WiFi</div>
+          <div class="dur">${escapeHtml(dur)}</div>
+          <div class="codebox">
+            <div class="field">Usuario</div>
+            <div class="val" title="${escapeHtml(user)}">${escapeHtml(user)}</div>
+            <div class="field" style="margin-top:4px;">Clave</div>
+            <div class="val" title="${escapeHtml(pass)}">${escapeHtml(pass)}</div>
+          </div>
+          ${price ? `<div class="price">${escapeHtml(price)}</div>` : ''}
+        </div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  sheet.innerHTML = html;
+  document.getElementById('total').textContent = lines.length + ' vouchers · ' + Math.ceil(lines.length/PER_PAGE) + ' hoja(s) A4 (48 por hoja)';
+}
+</script>
+</body>
+</html>
