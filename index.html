@@ -77,16 +77,16 @@
   }
   .grid{
     display:grid;
-    grid-template-columns:repeat(4, 1fr);
+    grid-template-columns:repeat(5, 1fr);
     grid-auto-rows:24mm;
   }
   .ticket{
     border:1px dashed var(--line);
-    padding:5px;
+    padding:2px 3px;
     display:flex;
     flex-direction:row;
     align-items:center;
-    gap:6px;
+    gap:3px;
     text-align:left;
     min-height:0;
     overflow:hidden;
@@ -100,26 +100,28 @@
     flex-direction:column;
   }
   .ticket .brand{
-    font-size:7px;
-    font-weight:700;
-    letter-spacing:.3px;
+    font-size:8px;
+    font-weight:800;
+    letter-spacing:.2px;
     color:var(--sun);
     text-transform:uppercase;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
     max-width:100%;
+    line-height:1.2;
   }
   .ticket .dur{
-    font-size:9px;
-    font-weight:700;
+    font-size:10px;
+    font-weight:800;
     color:var(--sky);
-    margin:1px 0 3px;
+    margin:1px 0 2px;
+    line-height:1.2;
   }
   .ticket .qr{
-    width:46px;
-    height:46px;
-    padding:2px;
+    width:36px;
+    height:36px;
+    padding:1px;
     margin:0;
     border:1px solid var(--line);
     background:#fff;
@@ -131,42 +133,44 @@
   }
   .ticket .qr img{
     display:block;
-    width:auto;
-    height:auto;
-    max-width:100%;
-    max-height:100%;
+    width:100%;
+    height:100%;
+    image-rendering:pixelated;
   }
   .ticket .codebox{
     background:var(--paper);
     border:1px solid var(--line);
     border-radius:3px;
-    padding:3px;
+    padding:2px 3px;
     width:100%;
     overflow:hidden;
   }
   .ticket .field{
-    font-size:6px;
-    color:#8a8272;
+    font-size:7px;
+    color:#7a7262;
     text-transform:uppercase;
     letter-spacing:.3px;
+    font-weight:600;
+    line-height:1.1;
   }
   .ticket .val{
     font-family:'SFMono-Regular', Consolas, monospace;
-    font-size:9px;
+    font-size:10px;
     font-weight:700;
     color:var(--ink);
-    letter-spacing:.4px;
+    letter-spacing:.3px;
     white-space:nowrap;
     overflow:hidden;
     text-overflow:ellipsis;
     max-width:100%;
-    word-break:break-all;
+    line-height:1.2;
   }
   .ticket .price{
-    margin-top:3px;
-    font-size:9px;
-    font-weight:700;
+    margin-top:2px;
+    font-size:10px;
+    font-weight:800;
     color:var(--sky);
+    line-height:1.2;
   }
   .empty{
     padding:40px;
@@ -181,10 +185,10 @@
     body{background:#fff;}
     .panel{padding:0; max-width:none;}
     .no-print{display:none !important;}
-    #sheet{margin-top:0; border:none;}
-    .grid{page-break-after:always; break-after:page;}
+    #sheet{margin-top:0; border:none; width:210mm;}
+    .grid{page-break-after:always; break-after:page; width:210mm;}
     .grid:last-child{page-break-after:auto; break-after:auto;}
-    .ticket{border:1px dashed #999; page-break-inside:avoid; break-inside:avoid;}
+    .ticket{border:1px dashed #aaa; page-break-inside:avoid; break-inside:avoid;}
   }
 
   #login{
@@ -311,7 +315,7 @@ function hashCred(s){
   return (h >>> 0).toString(16).padStart(8,'0') + (h2 >>> 0).toString(16).padStart(8,'0');
 }
 
-var CRED = { u: '86be019ab96e2950', p: '143c9c39ca6c8a11' };
+var CRED = { u: 'b52cf34bd8847ca7', p: 'ead37a8309c3d27f' };
 
 function intentarLogin(e){
   e.preventDefault();
@@ -335,9 +339,9 @@ function makeQR(text, size){
     var qr = qrcode(0, 'M');
     qr.addData(text);
     qr.make();
-    box.innerHTML = qr.createImgTag(4, 1);
+    box.innerHTML = qr.createImgTag(1, 0);
   }else{
-    box.innerHTML = '<div style="width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;color:#999;font-size:9px;">QR sin conexión</div>';
+    box.innerHTML = '<div style="width:'+size+'px;height:'+size+'px;display:flex;align-items:center;justify-content:center;color:#999;font-size:8px;">QR</div>';
   }
   return box;
 }
@@ -357,7 +361,7 @@ function generar(){
 
   const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
 
-  const PER_PAGE = 48;
+  const PER_PAGE = 60;
   let html = '';
   for(let i = 0; i < lines.length; i += PER_PAGE){
     html += '<div class="grid">';
@@ -374,7 +378,7 @@ function generar(){
       const qrData = loginUrl;
       html += `
       <div class="ticket">
-        ${makeQR(qrData, 34).outerHTML}
+        ${makeQR(qrData, 36).outerHTML}
         <div class="info">
           <div class="brand">Nueva Esperanza WiFi</div>
           <div class="dur">${escapeHtml(dur)}</div>
@@ -392,7 +396,7 @@ function generar(){
   }
 
   sheet.innerHTML = html;
-  document.getElementById('total').textContent = lines.length + ' vouchers · ' + Math.ceil(lines.length/PER_PAGE) + ' hoja(s) A4 (48 por hoja)';
+  document.getElementById('total').textContent = lines.length + ' vouchers · ' + Math.ceil(lines.length/PER_PAGE) + ' hoja(s) A4 (60 por hoja)';
 }
 </script>
 </body>
